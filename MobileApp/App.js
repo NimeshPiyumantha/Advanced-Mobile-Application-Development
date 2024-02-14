@@ -1,20 +1,68 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import HomeScreen from "./screens/HomeScreen";
+import SignInScreen from "./screens/SignInScreen";
+import AddNewScreen from "./screens/AddNewScreen";
 
-export default function App() {
+const Stack = createNativeStackNavigator();
+const BottomTab = createMaterialBottomTabNavigator();
+
+const MainTabs = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <BottomTab.Navigator>
+      <BottomTab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="home" color={color} size={26} />
+          ),
+        }}
+      />
+      <BottomTab.Screen
+        name="Add User"
+        component={AddNewScreen}
+        options={{
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="plus" color={color} size={26} />
+          ),
+        }}
+      />
+    </BottomTab.Navigator>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const App = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="SignIn">
+        <Stack.Screen
+          name="SignIn"
+          component={SignInScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MainTabs"
+          component={MainTabs}
+          options={({ navigation }) => ({
+            headerLeft: null,
+            title: "User Manage",
+            headerRight: () => (
+              <MaterialCommunityIcons
+                name="logout"
+                size={24}
+                style={{ marginRight: 15 }}
+                onPress={() => navigation.navigate("SignIn")}
+              />
+            ),
+          })}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default App;

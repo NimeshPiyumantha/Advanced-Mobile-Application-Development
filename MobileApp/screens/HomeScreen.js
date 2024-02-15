@@ -63,7 +63,7 @@ const HomeScreen = () => {
     db.transaction((tx) => {
       tx.executeSql(
         "UPDATE students SET firstName=?, lastName=?, age=?, email=?, password=?, pImage=? WHERE id=?",
-        [firstName, lastName, age, email, password, pImage, selectedItem.id],
+        [selectedItem.firstName, selectedItem.lastName, selectedItem.age, selectedItem.email, selectedItem.password, selectedItem.pImage, selectedItem.id],
         (tx, results) => {
           if (results.rowsAffected > 0) {
             fetchUsersFromSQLite();

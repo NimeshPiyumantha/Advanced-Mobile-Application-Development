@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+import db from "../db/db";
 
 const AddNewScreen = () => {
   const [firstName, setFirstName] = useState();
@@ -15,14 +17,33 @@ const AddNewScreen = () => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [pImage, setPImage] = useState();
+
+  const clearFields = () => {
+    setFirstName("");
+    setLastName("");
+    setAge("");
+    setEmail("");
+    setPassword("");
+    setPImage("");
+  };
+
   const addNewUser = () => {
-    console.log("Adding new person:", {
-      firstName,
-      lastName,
-      age,
-      email,
-      password,
-      pImage,
+    db.transaction((tx) => {
+      tx.executeSql(
+        "INSERT INTO students (firstName, lastName, age, email, password, pImage) VALUES (?, ?, ?, ?, ?, ?)",
+        [firstName, lastName, age, email, password, pImage],
+        (_, { rowsAffected }) => {
+          if (rowsAffected > 0) {
+            console.log("Student inserted successfully");
+            clearFields();
+          } else {
+            console.log("Failed to insert Student");
+          }
+        },
+        (error) => {
+          console.log("Error inserting student:", error);
+        }
+      );
     });
   };
 
@@ -40,7 +61,11 @@ const AddNewScreen = () => {
       quality: 1,
     });
 
-    setPImage(result.uri);
+    const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    setPImage(base64);
   };
 
   return (
@@ -70,17 +95,22 @@ const AddNewScreen = () => {
         value={email}
         onChangeText={setEmail}
       />
+      <TextInput
+        style={styles.inputAndroid}
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
       <TouchableOpacity
         style={styles.imagePickerButton}
         onPress={openImagePicker}
       >
         <Text style={styles.buttonText}>Add Profile Image</Text>
       </TouchableOpacity>
-      <Text style={styles.imagePickerButtonText}>
-        {pImage ? "Profile Image Added!" : ""}
-      </Text>
+
       <TouchableOpacity style={styles.addButton} onPress={addNewUser}>
-        <Text style={styles.buttonText}>Add User</Text>
+        <Text style={styles.buttonText}>Save User</Text>
       </TouchableOpacity>
     </View>
   );
@@ -110,26 +140,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     elevation: 2,
   },
-  inputIOS: {
-    width: "100%",
-    padding: 15,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    fontSize: 16,
-    fontWeight: "bold",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-  },
   addButton: {
     backgroundColor: "green",
-    padding: 15,
+    padding: 12,
     borderRadius: 5,
   },
   buttonText: {
@@ -143,7 +156,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 5,
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 15,
   },
   imagePickerButtonText: {
     color: "#fff",

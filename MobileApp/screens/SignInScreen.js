@@ -7,17 +7,46 @@ import {
   StyleSheet,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import db from "../db/db";
 
 const SignInScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
 
-  const handleLogin = () => {
-    console.log(`Email: ${email}, Password: ${password}`);
-    navigation.navigate("MainTabs");
+  clearTextfield = () => {
+    setEmail("");
+    setPassword("");
   };
 
+  const handleLogin = () => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM user WHERE email = ?",
+        [email],
+        (_, { rows: { _array } }) => {
+          if (_array.length === 0) {
+            alert("User not found");
+          } else {
+            const user = _array[0];
+            if (user.password !== password) {
+              alert("Invalid password");
+            } else {
+              clearTextfield();
+              navigation.navigate("MainTabs");
+            }
+          }
+        },
+        (_, error) => {
+          console.log("Error querying user:", error);
+        }
+      );
+    });
+  };
+
+  const navigateToRegister = () => {
+    navigation.navigate("SignUp");
+  };
 
   return (
     <View style={styles.container}>
@@ -44,6 +73,9 @@ const SignInScreen = () => {
         <Text style={styles.loginButtonText}>Sign In</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity onPress={navigateToRegister}>
+        <Text style={styles.registerLink}>Register</Text>
+      </TouchableOpacity>
     </View>
   );
 };

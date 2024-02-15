@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,28 +11,8 @@ import {
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-
-const DATA = [
-  {
-    id: "1",
-    firstName: "Nimesh",
-    lastName: "Piyumantha",
-    age: "22",
-    email: "saas@dsads",
-    password: "123",
-    pImage: "https://placebear.com/g/200/200",
-  },
-  {
-    id: "2",
-    firstName: "Akila",
-    lastName: "Piyumantha",
-    age: "24",
-    email: "ssdaas@dsads",
-    password: "1233",
-    pImage: "https://placebear.com/g/200/200",
-  },
-  // Add more vehicles as needed
-];
+import db from "../db/db";
+import * as FileSystem from "expo-file-system";
 
 const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -44,7 +24,19 @@ const HomeScreen = () => {
   const [email, setEmail] = useState(selectedItem?.email);
   const [password, setPassword] = useState(selectedItem?.password);
   const [pImage, setPImage] = useState(selectedItem?.pImage);
-  const [person, setPerson] = useState(DATA);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    fetchUsersFromSQLite();
+  }, []);
+
+  const fetchUsersFromSQLite = () => {
+    db.transaction((tx) => {
+      tx.executeSql("SELECT * FROM students", [], (_, { rows: { _array } }) => {
+        setUsers(_array);
+      });
+    });
+  };
 
   const openImagePicker = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -60,7 +52,42 @@ const HomeScreen = () => {
       quality: 1,
     });
 
-    setPImage(result.uri);
+    const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    setPImage(base64);
+  };
+
+  const updateUserData = () => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "UPDATE students SET firstName=?, lastName=?, age=?, email=?, password=?, pImage=? WHERE id=?",
+        [firstName, lastName, age, email, password, pImage, selectedItem.id],
+        (tx, results) => {
+          if (results.rowsAffected > 0) {
+            fetchUsersFromSQLite();
+            closeModal();
+          }
+        }
+      );
+    });
+    closeModal();
+  };
+
+  const deleteUserData = () => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        "DELETE FROM students WHERE id=?",
+        [selectedItem.id],
+        (tx, results) => {
+          if (results.rowsAffected > 0) {
+            fetchUsersFromSQLite();
+            closeModal();
+          }
+        }
+      );
+    });
   };
 
   const renderItem = ({ item }) => (
@@ -74,7 +101,7 @@ const HomeScreen = () => {
       <View style={styles.row}>
         <Image
           style={styles.profileImage}
-          source={{ uri: item.pImage }}
+          source={{ uri: `data:image/png;base64,${item.pImage}` }}
           resizeMode="cover"
         />
         <View style={styles.detailsContainer}>
@@ -117,7 +144,7 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={DATA}
+        data={users}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.flatListContent}
@@ -185,9 +212,6 @@ const HomeScreen = () => {
           >
             <Text style={styles.buttonText}>Add Profile Image</Text>
           </TouchableOpacity>
-          <Text style={styles.imagePickerButtonText}>
-            {pImage ? "Profile Image Added!" : ""}
-          </Text>
 
           <View style={styles.buttonContainer}>
             <Button
@@ -195,9 +219,7 @@ const HomeScreen = () => {
               color="#eccc68"
               titleStyle={{ color: "#2f3542" }}
               onPress={() => {
-                console.log(
-                  `Id: ${selectedItem.id}, First Name: ${selectedItem.firstName}, Last Name: ${selectedItem.lastName}, Age: ${selectedItem.age}, Email: ${selectedItem.email}, Profile Image: ${pImage}`
-                );
+                updateUserData();
               }}
             />
             <Button
@@ -205,7 +227,7 @@ const HomeScreen = () => {
               color="#dc3545"
               titleStyle={{ color: "white" }}
               onPress={() => {
-                console.log(`Id: ${selectedItem.id}`);
+                deleteUserData();
               }}
             />
             <Button

@@ -70,7 +70,7 @@ const AddNewScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add New User</Text>
+      <Text style={styles.title}>Add New Student</Text>
       <TextInput
         style={styles.inputAndroid}
         placeholder="First Name"
@@ -106,7 +106,9 @@ const AddNewScreen = () => {
         style={styles.imagePickerButton}
         onPress={openImagePicker}
       >
-        <Text style={styles.buttonText}>Add Profile Image</Text>
+        <Text style={styles.buttonText}>
+          {pImage ? "Image is Uploaded" : "Add Profile Image"}
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.addButton} onPress={addNewUser}>
@@ -128,22 +130,27 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
+    color: "#487eb0",
   },
   inputAndroid: {
     width: "100%",
-    padding: 15,
-    marginBottom: 20,
+    padding: 12,
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
+    borderColor: "#7f8fa6",
+    borderRadius: 15,
     fontSize: 16,
-    fontWeight: "bold",
-    elevation: 2,
+    backgroundColor: "#f5f6fa",
+    elevation: 5,
   },
   addButton: {
-    backgroundColor: "green",
-    padding: 12,
-    borderRadius: 5,
+    marginTop: 20,
+    width: "80%",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    margin: 5,
+    backgroundColor: "#218c74",
   },
   buttonText: {
     color: "#fff",
@@ -152,11 +159,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   imagePickerButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#7f8fa6",
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 15,
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 20,
+    width: "100%",
   },
   imagePickerButtonText: {
     color: "#fff",

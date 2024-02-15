@@ -24,7 +24,7 @@ const MainTabs = () => {
         }}
       />
       <BottomTab.Screen
-        name="Add User"
+        name="Add Student"
         component={AddNewScreen}
         options={{
           tabBarIcon: ({ color }) => (
@@ -55,7 +55,7 @@ const App = () => {
           component={MainTabs}
           options={({ navigation }) => ({
             headerLeft: null,
-            title: "User Manage",
+            title: "Manage Students",
             headerRight: () => (
               <MaterialCommunityIcons
                 name="logout"

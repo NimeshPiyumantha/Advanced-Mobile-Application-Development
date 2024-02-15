@@ -5,10 +5,12 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import db from "../db/db";
+import { showAlert } from "./util/alert";
 
 const AddNewScreen = () => {
   const [firstName, setFirstName] = useState();
@@ -34,10 +36,10 @@ const AddNewScreen = () => {
         [firstName, lastName, age, email, password, pImage],
         (_, { rowsAffected }) => {
           if (rowsAffected > 0) {
-            console.log("Student inserted successfully");
+            showAlert("Student Added", "Student has been added successfully!");
             clearFields();
           } else {
-            console.log("Failed to insert Student");
+            showAlert("Failed to Add Student", "Failed to add student!");
           }
         },
         (error) => {
@@ -50,7 +52,10 @@ const AddNewScreen = () => {
   const openImagePicker = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permission.granted === false) {
-      alert("Permission to access camera roll is required!");
+      showAlert(
+        "Permission Required",
+        "Permission to access camera roll is required!"
+      );
       return;
     }
 
@@ -69,51 +74,58 @@ const AddNewScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add New Student</Text>
-      <TextInput
-        style={styles.inputAndroid}
-        placeholder="First Name"
-        value={firstName}
-        onChangeText={setFirstName}
-      />
-      <TextInput
-        style={styles.inputAndroid}
-        placeholder="Last Name"
-        value={lastName}
-        onChangeText={setLastName}
-      />
-      <TextInput
-        style={styles.inputAndroid}
-        placeholder="Age"
-        value={age}
-        onChangeText={setAge}
-      />
-      <TextInput
-        style={styles.inputAndroid}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.inputAndroid}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity
-        style={styles.imagePickerButton}
-        onPress={openImagePicker}
+    <View>
+      <ImageBackground
+        source={require("../assets/img/background.jpg")}
+        style={{ width: "100%", height: "100%" }}
       >
-        <Text style={styles.buttonText}>
-          {pImage ? "Image is Uploaded" : "Add Profile Image"}
-        </Text>
-      </TouchableOpacity>
+        <View style={styles.container}>
+          <Text style={styles.title}>Add New Student</Text>
+          <TextInput
+            style={styles.inputAndroid}
+            placeholder="First Name"
+            value={firstName}
+            onChangeText={setFirstName}
+          />
+          <TextInput
+            style={styles.inputAndroid}
+            placeholder="Last Name"
+            value={lastName}
+            onChangeText={setLastName}
+          />
+          <TextInput
+            style={styles.inputAndroid}
+            placeholder="Age"
+            value={age}
+            onChangeText={setAge}
+          />
+          <TextInput
+            style={styles.inputAndroid}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TextInput
+            style={styles.inputAndroid}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <TouchableOpacity
+            style={styles.imagePickerButton}
+            onPress={openImagePicker}
+          >
+            <Text style={styles.buttonText}>
+              {pImage ? "Image is Uploaded" : "Add Profile Image"}
+            </Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity style={styles.addButton} onPress={addNewUser}>
-        <Text style={styles.buttonText}>Save User</Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.addButton} onPress={addNewUser}>
+            <Text style={styles.buttonText}>Save User</Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
     </View>
   );
 };
@@ -124,6 +136,11 @@ const styles = StyleSheet.create({
     padding: 25,
     justifyContent: "center",
     alignItems: "center",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
   },
   title: {
     fontSize: 30,

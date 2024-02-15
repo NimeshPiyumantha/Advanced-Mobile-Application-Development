@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import db from "../db/db";
+import { showAlert } from "./util/alert";
 
 const SignUpScreen = () => {
   const [name, setName] = useState("");
@@ -26,10 +27,10 @@ const SignUpScreen = () => {
         [email, name, password],
         (_, { rowsAffected }) => {
           if (rowsAffected > 0) {
-            console.log("User inserted successfully");
+            showAlert("Sign Up Success", "You have successfully signed up!");
             clearTextfield();
           } else {
-            console.log("Failed to insert user");
+            showAlert("Sign Up Failed", "Failed to sign up!");
           }
         },
         (error) => {

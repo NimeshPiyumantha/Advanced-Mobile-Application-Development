@@ -7,12 +7,13 @@ import {
   TouchableOpacity,
   Modal,
   TextInput,
-  Button,
+  ImageBackground,
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import db from "../db/db";
 import * as FileSystem from "expo-file-system";
+import { showAlert } from "./util/alert";
 
 const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -41,7 +42,10 @@ const HomeScreen = () => {
   const openImagePicker = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permission.granted === false) {
-      alert("Permission to access camera roll is required!");
+      showAlert(
+        "Permission Required",
+        "Permission to access camera roll is required!"
+      );
       return;
     }
 
@@ -75,6 +79,7 @@ const HomeScreen = () => {
         (tx, results) => {
           if (results.rowsAffected > 0) {
             fetchUsersFromSQLite();
+            showAlert("Success", "Student updated successfully!");
             closeModal();
           }
         }
@@ -91,6 +96,7 @@ const HomeScreen = () => {
         (tx, results) => {
           if (results.rowsAffected > 0) {
             fetchUsersFromSQLite();
+            showAlert("Success", "Student deleted successfully!");
             closeModal();
           }
         }
@@ -150,107 +156,116 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={users}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.flatListContent}
-      />
-
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={modalVisible}
-        onRequestClose={closeModal}
+    <View>
+      <ImageBackground
+        source={require("../assets/img/background.jpg")}
+        style={{ width: "100%", height: "100%" }}
       >
-        <View style={styles.modalContainer}>
-          <Text style={styles.title}>Manage Student</Text>
-          <Text style={styles.sTitle}>User ID: {selectedItem?.id}</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="First Name"
-            value={selectedItem?.firstName}
-            onChangeText={(text) => {
-              setFirstName(text);
-              setSelectedItem({ ...selectedItem, firstName: text });
-            }}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Last Name"
-            value={selectedItem?.lastName}
-            onChangeText={(text) => {
-              setLastName(text);
-              setSelectedItem({ ...selectedItem, lastName: text });
-            }}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Age"
-            value={selectedItem?.age}
-            onChangeText={(text) => {
-              setAge(text);
-              setSelectedItem({ ...selectedItem, age: text });
-            }}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={selectedItem?.email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setSelectedItem({ ...selectedItem, email: text });
-            }}
+        <View style={styles.container}>
+          <FlatList
+            data={users}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.flatListContent}
           />
 
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={selectedItem?.password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setSelectedItem({ ...selectedItem, password: text });
-            }}
-          />
-
-          <TouchableOpacity
-            style={styles.imagePickerButton}
-            onPress={openImagePicker}
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={modalVisible}
+            onRequestClose={closeModal}
           >
-            <Text style={styles.buttonText}>
-              {pImage ? "Image is Uploaded" : "Update Profile Image"}
-            </Text>
-          </TouchableOpacity>
+            <View style={styles.modalContainer}>
+              <Text style={styles.title}>Manage Student</Text>
+              <Text style={styles.sTitle}>User ID: {selectedItem?.id}</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="First Name"
+                value={selectedItem?.firstName}
+                onChangeText={(text) => {
+                  setFirstName(text);
+                  setSelectedItem({ ...selectedItem, firstName: text });
+                }}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Last Name"
+                value={selectedItem?.lastName}
+                onChangeText={(text) => {
+                  setLastName(text);
+                  setSelectedItem({ ...selectedItem, lastName: text });
+                }}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Age"
+                value={selectedItem?.age}
+                onChangeText={(text) => {
+                  setAge(text);
+                  setSelectedItem({ ...selectedItem, age: text });
+                }}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={selectedItem?.email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  setSelectedItem({ ...selectedItem, email: text });
+                }}
+              />
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: "#eccc68" }]}
-              onPress={updateUserData}
-            >
-              <Text style={[styles.buttonText, { color: "#2f3542" }]}>
-                Edit
-              </Text>
-            </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={selectedItem?.password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  setSelectedItem({ ...selectedItem, password: text });
+                }}
+              />
 
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: "#dc3545" }]}
-              onPress={deleteUserData}
-            >
-              <Text style={[styles.buttonText, { color: "black" }]}>
-                Delete
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.imagePickerButton}
+                onPress={openImagePicker}
+              >
+                <Text style={styles.buttonText}>
+                  {pImage ? "Image is Uploaded" : "Update Profile Image"}
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: "#487eb0" }]}
-              onPress={closeModal}
-            >
-              <Text style={[styles.buttonText, { color: "white" }]}>Close</Text>
-            </TouchableOpacity>
-          </View>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: "#eccc68" }]}
+                  onPress={updateUserData}
+                >
+                  <Text style={[styles.buttonText, { color: "#2f3542" }]}>
+                    Edit
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: "#dc3545" }]}
+                  onPress={deleteUserData}
+                >
+                  <Text style={[styles.buttonText, { color: "black" }]}>
+                    Delete
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: "#487eb0" }]}
+                  onPress={closeModal}
+                >
+                  <Text style={[styles.buttonText, { color: "white" }]}>
+                    Close
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
         </View>
-      </Modal>
+      </ImageBackground>
     </View>
   );
 };
@@ -259,7 +274,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#f5f5f5",
   },
   buttonContainer: {
     flexDirection: "row",
@@ -373,6 +387,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
   },
 });
 

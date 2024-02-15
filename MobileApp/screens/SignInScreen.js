@@ -10,6 +10,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import db from "../db/db";
 import { Ionicons } from "@expo/vector-icons";
+import { showAlert } from "./util/alert";
 
 const SignInScreen = () => {
   const [email, setEmail] = useState("");
@@ -28,14 +29,15 @@ const SignInScreen = () => {
         [email],
         (_, { rows: { _array } }) => {
           if (_array.length === 0) {
-            alert("User not found");
+            showAlert("Sign In Failed", "User not found!");
           } else {
             const user = _array[0];
             if (user.password !== password) {
-              alert("Invalid password");
+              showAlert("Sign In Failed", "Invalid Password!");
             } else {
               clearTextfield();
               navigation.navigate("MainTabs");
+              showAlert("Sign In Success", "You have successfully signed in!");
             }
           }
         },
